@@ -53,13 +53,13 @@ Disks_for_throughput = 57.6 Kb/s / 100 MB/s = 0.0006
 Disks_for_iops = 1157 / 100 = 11.5
 Disks = max(ceil(0.6), ceil(0.0006), ceil(11.5)) = 12
 
-SSD:
+SSD(sata):
 Disks_for_capacity = 624 GB / 1 TB = 0.6
-Disks_for_throughput = 57.6 Kb/s / 1000 MB/s = 0.00006
+Disks_for_throughput = 57.6 Kb/s / 500 MB/s = 0.00012
 Disks_for_iops = 1157 / ~ 1000 = ~ 1
-Disks = max(ceil(0.6), ceil(0.00006), ceil(1)) = 1
+Disks = max(ceil(0.6), ceil(0.00012), ceil(1)) = 1
 
-Решение: 1 SSD диск на 1Тб
+Решение: 1 SSD(sata) диск на 1Тб
 ```
 
 #### Подписки
