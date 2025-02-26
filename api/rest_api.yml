@@ -1,0 +1,506 @@
+openapi: 3.0.0
+
+tags:
+  - name: TRS
+
+info:
+  title: TRS API
+  description: API для социальной сети путешественников
+  version: 1.0.0
+
+paths:
+  /api/v1/images:
+    post:
+      summary: Загрузить изображения
+      description: Загружает изображения на сервер и возвращает ссылки на них.
+      tags:
+        - TRS
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Файлы изображений для загрузки
+      responses:
+        '200':
+          description: Изображения успешно загружены
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imageUrls:
+                    type: array
+                    items:
+                      type: string
+                    description: Ссылки на загруженные изображения
+                required:
+                  - imageUrls
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/v1/posts:
+    post:
+      summary: Создать новый пост
+      description: Позволяет пользователю создать пост с фотографиями, описанием и привязкой к локации.
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - TRS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRequest'
+      responses:
+        '201':
+          description: Пост успешно создан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  postId:
+                    type: string
+                    description: ID поста
+                required:
+                  - postId
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    get:
+      summary: Получить посты по локации
+      description: Возвращает список постов для конкретной локации с поддержкой пагинации.
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - TRS
+      parameters:
+        - name: locationId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: ID локации
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Номер страницы (начинается с 0)
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Количество элементов на странице
+      responses:
+        '200':
+          description: Список постов успешно получен
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationResponse'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PostResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/v1/posts/{postId}/reactions:
+    post:
+      summary: Поставить реакцию
+      description: Позволяет пользователю оставить оценку и комментарий к посту.
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - TRS
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReactionRequest'
+      responses:
+        '200':
+          description: Оценка успешно поставлена
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    get:
+      summary: Получить реакции (комменты и оценки)
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - TRS
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 15
+      responses:
+        '200':
+          description: Список реакций успешно получен
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationResponse'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ReactionDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/v1/users/{userId}/followers:
+    post:
+      summary: Подписаться на пользователя
+      description: Позволяет пользователю подписаться на другого пользователя.
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - TRS
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Подписка успешно оформлена
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    delete:
+      summary: Отписаться от пользователя
+      description: Позволяет пользователю отписаться от другого пользователя.
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - TRS
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Успешная отписка
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+
+  /api/v1/feed:
+    get:
+      summary: Получить ленту постов
+      description: Возвращает ленту постов пользователя, основанную на подписках, в обратном хронологическом порядке, либо рекомендованную ленту.
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - TRS
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - FOLLOWING
+              - RECOMMEDED
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Лента постов успешно получена
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationResponse'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PostResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/v1/locations:
+    get:
+      summary: Поиск популярных локаций
+      description: Возвращает список популярных мест с поддержкой пагинации.
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - TRS
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Номер страницы (начинается с 0)
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Количество элементов на странице
+      responses:
+        '200':
+          description: Список популярных мест успешно получен
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationResponse'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/LocationResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Location:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID локации (PK в нашей таблице локаций)
+        name:
+          type: string
+          description: Название
+        description:
+          type: string
+          description: Описание
+        pos:
+          type: string
+          description: Широта и долгота
+      required:
+        - id
+        - name
+        - description
+        - pos
+
+    PostRequest:
+      type: object
+      required:
+        - userId
+        - description
+        - location
+        - photos
+      properties:
+        userId:
+          type: string
+          description: ID пользователя, создающего пост
+        description:
+          type: string
+          maxLength: 200
+          description: Описание поста
+        location:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Название
+            description:
+              type: string
+              description: Описание
+            pos:
+              type: string
+              description: Широта и долгота
+        photos:
+          type: array
+          items:
+            type: string
+          maxItems: 6
+          description: Список url фотографий поста (максимум 6)
+
+    PostResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID поста
+        userId:
+          type: string
+          description: ID пользователя
+        description:
+          type: string
+          description: Описание поста
+        location:
+          $ref: '#/components/schemas/Location'
+        photos:
+          type: array
+          items:
+            type: string
+          description: Список URL фотографий
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время создания поста
+
+    ReactionRequest:
+      type: object
+      required:
+        - rating
+        - text
+      properties:
+        rating:
+          type: integer
+          description: Оценка
+        text:
+          type: string
+          maxLength: 300
+          description: Текст комментария
+
+    ReactionDto:
+      type: object
+      properties:
+        rating:
+          type: integer
+          description: Оценка
+        text:
+          type: string
+          description: Текст комментария
+        userId:
+          type: string
+          description: ID юзера который поставил реакцию
+        userAvatarUrl:
+          type: string
+          description: Url аватарки юзера
+        username:
+          type: string
+          description: Имя пользователя
+
+    LocationResponse:
+      allOf:
+        - $ref: '#/components/schemas/Location'
+        - type: object
+          properties:
+            popularity:
+              type: integer
+              description: Популярность локации (количество постов)
+
+    PaginationResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { }
+          description: Список элементов
+        totalElements:
+          type: integer
+          description: Общее количество элементов
+        totalPages:
+          type: integer
+          description: Сколько всего страниц доступно
+        page:
+          type: integer
+          description: Текущая страница
+        size:
+          type: integer
+          description: Количество элементов на странице
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Описание ошибки
+
+  responses:
+    BadRequest:
+      description: Неверный запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ServerError:
+      description: Ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
