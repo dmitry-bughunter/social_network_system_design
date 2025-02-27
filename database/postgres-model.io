@@ -1,3 +1,19 @@
+// Репликация:
+// - master-slave (async)
+// - replication factor 2
+//
+// Шардинг:
+//  feed, feed_item: key based by user_id
+//  reaction: key based by post_id
+//  location: key based by id
+//  follow: key based by folowee_id
+//
+//  post: - не знаю, как зашардить эту таблицу, чтоб избежать кроссшардовых запросов.
+// Мы выбираем из post n элементов ленты, а лента для каждого пользователя своя. Единственное, что приходит на ум - шардить по created_at,
+// и сделать так чтобы feed_item.created_at = post.created_at.
+// Среди n элементов feed_item найти самую старую дату и новую, и по этому диапазону определять нужный шард/шарды. Выглядит как костыль, но ничего пока не придумал лучше.
+
+
 Table post_db.post {
   id uuid [pk]
   user_id uuid [not null, ref: > user_db.user.id]
