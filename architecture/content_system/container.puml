@@ -5,8 +5,11 @@ Person(user, "User")
 
 Container(reverseProxy, "Reverse proxy", "Nginx")
 Container(apiGateway, "API Gateway", "Spring Cloud Gateway")
+
+System_Boundary(contentSystem, "Content system") {
 Container(contentService, "Content Service", "Java", "Generates presigned urls for uploading", $tags="webApp")
 ContainerDb(contentStorage, "Content storage", "MinIO", "Stores images",  $tags="db")
+}
 
 Rel(user, reverseProxy, "Gets presigned URL for upload content", "REST")
 Rel(reverseProxy, apiGateway, "Gets presigned URL for upload content", "REST")
