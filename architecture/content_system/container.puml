@@ -1,0 +1,16 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+
+Container(reverseProxy, "Reverse proxy", "Nginx")
+Container(apiGateway, "API Gateway", "Spring Cloud Gateway")
+Container(contentService, "Content Service", "Java", "Generates presigned urls for uploading", $tags="webApp")
+ContainerDb(contentStorage, "Content storage", "MinIO", "Stores images",  $tags="db")
+
+Rel(user, reverseProxy, "Gets presigned URL for upload content", "REST")
+Rel(reverseProxy, apiGateway, "Gets presigned URL for upload content", "REST")
+Rel(apiGateway, contentService, "Gets presigned URL for upload content", "REST")
+Rel(contentService, contentStorage, "Delete trash/unused content")
+Rel(user, contentStorage, "Upload content by presigned URL", "HTTPS")
+@enduml
