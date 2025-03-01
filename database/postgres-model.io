@@ -23,13 +23,13 @@ Table post_db.post {
   created_at timestamp [default: `current_timestamp`]
 }
 
-Table post_db.feed {
+Table feed_db.feed {
   id uuid [pk]
   user_id uuid [pk, not null, ref: > user_db.user.id]
   type varchar(30) [not null] // лента подписок, лента рекоммендаций
 }
 
-Table post_db.feed_item {
+Table feed_db.feed_item {
   feed_id uuid [pk, not null, ref: > post_db.feed.id]
   post_id uuid [pk, not null, ref: > post_db.post.id]
   created_at timestamp [default: `current_timestamp`]

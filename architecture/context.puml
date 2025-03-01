@@ -3,14 +3,17 @@
 
 Person(user, "User")
 
-Container(postSystem, "Post system", "Software system", "Stores posts, generates personalized feeds of posts for users based on their subscriptions")
-Container(userSystem, "User system", "Software system", "Stores information about users")
+Container(postSystem, "Post system", "Software system", "Stores posts")
 Container(followingSystem, "Following system", "Software system", "Stores information about subscriptions")
 Container(locationSystem, "Location system", "Software system", "Stores information about posts locations")
-Container(reactionSystem, "User system", "Software system", "Stores information about user reactions to post")
+Container(reactionSystem, "Reaction system", "Software system", "Stores information about user reactions to post")
 Container(contentSystem, "Content system", "Software system", "Generates presigned urls for uploading")
+Container(feedSystem, "Feed system", "Software system", "Generates personalized feeds of posts for users based on their subscriptions/recommendations")
 
-Rel(user, postSystem, "Creates, gets posts and feeds")
+Rel(user, postSystem, "Creates/Gets posts")
 Rel(user, locationSystem, "Gets popular locations")
 Rel(user, reactionSystem, "Gets comments and ratings of posts")
+Rel(user, followingSystem, "Subscribe to user")
+Rel(user, feedSystem, "Gets feed")
+Rel(user, contentSystem, "Gets post photos")
 @enduml

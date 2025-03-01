@@ -1,13 +1,20 @@
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
+Person(user, "User")
+Container(reverseProxy, "Reverse proxy", "Nginx")
+Container(apiGateway, "API Gateway", "Spring Cloud Gateway")
+
 System_Boundary(followingSystem, "Following system") {
 Container(followingService, "Following Service", "Java", "Handle and store user subscriptions", $tags="webApp")
 ContainerDb(followingDatabase, "Following database", "PostgreSQL", "Stores user subscriptions",  $tags="db")
 }
-Container(postSystem, "Post system", "Software system", "Stores posts, generates personalized feeds of posts for users based on their subscriptions")
+Container(postSystem, "Post system", "Software system", "Stores posts")
 
-Rel(postSystem, followingService, "Gets subscribers of user")
+Rel(user, reverseProxy, "Subscribe to user", "REST")
+Rel(reverseProxy, apiGateway, "Subscribe to user", "REST")
+Rel(apiGateway, followingService, "Subscribe to user", "REST")
+Rel(postSystem, followingService, "Saves/Gets subscribers of user")
 Rel(followingService, followingDatabase, "Gets subscribers of user")
 
 @enduml

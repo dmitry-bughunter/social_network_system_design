@@ -5,6 +5,7 @@ Person(user, "User")
 
 Container(reverseProxy, "Reverse proxy", "Nginx")
 Container(apiGateway, "API Gateway", "Spring Cloud Gateway")
+Container(cdn, "CDN", "Cloudflare")
 
 System_Boundary(contentSystem, "Content system") {
 Container(contentService, "Content Service", "Java", "Generates presigned urls for uploading", $tags="webApp")
@@ -16,4 +17,6 @@ Rel(reverseProxy, apiGateway, "Gets presigned URL for upload content", "REST")
 Rel(apiGateway, contentService, "Gets presigned URL for upload content", "REST")
 Rel(contentService, contentStorage, "Delete trash/unused content")
 Rel(user, contentStorage, "Upload content by presigned URL", "HTTPS")
+Rel(user, cdn, "Gets static content", "HTTPS")
+Rel(cdn, contentStorage, "Pulls static content", "HTTPS")
 @enduml
