@@ -1,0 +1,20 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+Container(reverseProxy, "Reverse proxy", "Nginx")
+Container(apiGateway, "API Gateway", "Spring Cloud Gateway")
+
+System_Boundary(locationSystem, "Location system") {
+Container(locationService, "Location Service", "Java", "Handle and store user locations", $tags="webApp")
+ContainerDb(locationDatabase, "Location database", "PostgreSQL", "Stores user locations",  $tags="db")
+}
+Container(postSystem, "Post system", "Software system", "Stores posts")
+
+Rel(user, reverseProxy, "Gets the most popular locations", "REST")
+Rel(reverseProxy, apiGateway, "Gets the most popular locations", "REST")
+Rel(apiGateway, locationService, "Gets the most popular locations", "REST")
+Rel(locationService, locationDatabase, "Gets locations")
+Rel(postSystem, locationService, "Gets post location")
+
+@enduml
