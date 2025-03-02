@@ -1,3 +1,14 @@
+// Репликация:
+// - master-slave (async)
+// - replication factor 2
+//
+// Шардинг:
+//  feed, feed_item: key based by user_id
+//  reaction: key based by post_id
+//  location: key based by id
+//  follow: key based by folowee_id
+//  post: key based by post_id
+
 Table post_db.post {
   id uuid [pk]
   user_id uuid [not null, ref: > user_db.user.id]
