@@ -4,6 +4,8 @@
 Person(user, "User")
 Container(reverseProxy, "Reverse proxy", "Nginx")
 Container(apiGateway, "API Gateway", "Spring Cloud Gateway")
+ContainerQueue(subscriptionsQueue, "Subcription events topic", "Kafka", "Subscription events")
+Container(feedSystem, "Feed system", "Software system", "Generates personalized feeds of posts for users based on their subscriptions/recommendations")
 
 System_Boundary(followingSystem, "Following system") {
 Container(followingService, "Following Service", "Java", "Handle and store user subscriptions", $tags="webApp")
@@ -16,5 +18,7 @@ Rel(reverseProxy, apiGateway, "Subscribe to user", "REST")
 Rel(apiGateway, followingService, "Subscribe to user", "REST")
 Rel(postSystem, followingService, "Saves/Gets subscribers of user")
 Rel(followingService, followingDatabase, "Gets subscribers of user")
+Rel(followingService, subscriptionsQueue, "Produce SUBSCRIPTION, UNSUBSCRIPTION events")
+Rel(feedSystem, subscriptionsQueue, "Consume SUBSCRIPTION, UNSUBSCRIPTION event and update followers feeds")
 
 @enduml

@@ -8,7 +8,7 @@ Container(apiGateway, "API Gateway", "Spring Cloud Gateway")
 Container(cdn, "CDN", "Cloudflare")
 
 System_Boundary(contentSystem, "Content system") {
-Container(contentService, "Content Service", "Java", "Generates presigned urls for uploading", $tags="webApp")
+Container(contentService, "Content Service", "Java", "Gives media and generates presigned urls for uploading", $tags="webApp")
 ContainerDb(contentStorage, "Content storage", "MinIO", "Stores images",  $tags="db")
 }
 

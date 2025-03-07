@@ -7,7 +7,7 @@ Container(postSystem, "Post system", "Software system", "Stores posts")
 Container(followingSystem, "Following system", "Software system", "Stores information about subscriptions")
 Container(locationSystem, "Location system", "Software system", "Stores information about posts locations")
 Container(reactionSystem, "Reaction system", "Software system", "Stores information about user reactions to post")
-Container(contentSystem, "Content system", "Software system", "Generates presigned urls for uploading")
+Container(contentSystem, "Content system", "Software system", "Gives media and generates presigned urls for uploading")
 Container(feedSystem, "Feed system", "Software system", "Generates personalized feeds of posts for users based on their subscriptions/recommendations")
 
 Rel(user, postSystem, "Creates/Gets posts")
