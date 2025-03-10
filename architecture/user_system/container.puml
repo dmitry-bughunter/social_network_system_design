@@ -1,0 +1,12 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+System_Boundary(userSystem, "User system") {
+Container(userService, "User Service", "Java", "Handle and store users", $tags="webApp")
+ContainerDb(userDatabase, "User database", "PostgreSQL", "Stores users",  $tags="db")
+}
+Container(postSystem, "Post system", "Software system", "Stores posts")
+
+Rel(postSystem, userService, "Gets user info")
+Rel(userService, userDatabase, "Gets user info")
+@enduml

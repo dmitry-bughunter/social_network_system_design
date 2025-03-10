@@ -1,0 +1,34 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+Container(reverseProxy, "Reverse proxy", "Nginx")
+Container(apiGateway, "API Gateway", "Spring Cloud Gateway")
+Container(userSystem, "User system", "Software system", "Stores information about users")
+Container(followingSystem, "Following system", "Software system", "Stores information about subscriptions")
+Container(locationSystem, "Location system", "Software system", "Stores information about posts locations")
+Container(reactionSystem, "User system", "Software system", "Stores information about user reactions to post")
+Container(contentSystem, "Content system", "Software system", "Gives media and generates presigned urls for uploading")
+Container(feedSystem, "Feed system", "Software system", "Generates personalized feeds of posts for users based on their subscriptions/recommendations")
+ContainerQueue(postMessageQueue, "Events queue", "Kafka", "Post events")
+
+System_Boundary(postSystem, "Post system") {
+Container(postService, "Post Service", "Java", "Handles posts", $tags="webApp")
+ContainerDb(postDatabase, "Post database", "PostgreSQL", "Stores posts",  $tags="db")
+}
+
+Rel(user, reverseProxy, "Gets/Saves posts", "REST")
+Rel(reverseProxy, apiGateway, "Gets/Saves posts", "REST")
+Rel(apiGateway, postService, "Gets/Saves posts", "REST")
+
+Rel(feedSystem, postService, "Gets post full info", "REST")
+Rel(postService, postMessageQueue, "Publish post created event")
+Rel(feedSystem, postMessageQueue, "Consume event and update followers feeds")
+
+Rel(postService, postDatabase, "Gets/Saves posts")
+Rel(postService, userSystem, "Gets user info", "REST")
+Rel(postService, followingSystem, "Gets followers of user", "REST")
+Rel(postService, locationSystem, "Gets post locations", "REST")
+Rel(postService, reactionSystem, "Gets comments and ratings", "REST")
+Rel(postService, contentSystem, "Gets post photos", "REST")
+@enduml
